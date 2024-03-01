@@ -1,0 +1,79 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: setup-project
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      serviceAccountName: setup-project
+      initContainers:
+      - name: wait-for-label-studio
+        image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash"]
+        args:
+        - -ec
+        - |-
+          #!/usr/bin/env sh
+          wait_for_exists () {
+              # Arg1: selector
+              # Arg2: namespace
+              echo "IN"
+              while true; do
+                  pod_exists=$(oc -n $2 get po -oname -l $1 | wc -l)
+                  if [ $pod_exists -gt 0 ]; then
+                      echo "Selector $1 found in namespace $2"
+                      break
+                  fi
+                  echo "Wait for selector $1 in namspace $2"
+                  sleep 1
+              done;
+          }
+          wait_for_exists "app=label-studio" "label-studio"
+          oc -n label-studio wait --timeout=-1s --for=condition=Ready=true po -l app=label-studio
+      containers:
+      - name: setup-project
+        image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash"]
+        args:
+        - -ec
+        - |-
+          project_id=$(curl --location 'http://label-studio-ls-app/api/projects/' \
+          --header 'Content-Type: application/json' \
+          --header 'Authorization: Token redhat' \
+          --data '{
+              "title": "Traffic Signs Detection",
+              "label_config": "<View><View style=\"display:flex;align-items:start;gap:8px;flex-direction:row-reverse\"><Image name=\"image\" value=\"$image\" zoomControl=\"false\"/><RectangleLabels name=\"label\" toName=\"image\" showInline=\"false\"><Label value=\"SpeedLimit_30\" background=\"#FFA39E\"/><Label value=\"SpeedLimit_50\" background=\"#D4380D\"/><Label value=\"TrafficSignalsAhead\" background=\"#FFC069\"/><Label value=\"PedestiranCrossingAhead\" background=\"#AD8B00\"/><Label value=\"BewareChildren\" background=\"#D3F261\"/></RectangleLabels></View></View>"
+          }' | jq .id)
+          echo "Project created with id ${project_id}"
+          curl --location 'http://label-studio-ls-app/api/storages/s3/' \
+          --header 'Content-Type: application/json' \
+          --header 'Authorization: Token redhat' \
+          --data '{
+              "project": "'"$project_id"'",
+              "title": "Picture source",
+              "bucket": "label-studio-source",
+              "use_blob_urls": true,
+              "presign": false,
+              "aws_access_key_id": "minio",
+              "aws_secret_access_key": "minio123",
+              "s3_endpoint": "http://minio.minio:9000",
+              "region_name": "none"
+          }'
+          curl --location 'http://label-studio-ls-app/api/storages/export/s3' \
+          --header 'Content-Type: application/json' \
+          --header 'Authorization: Token redhat' \
+          --data '{
+              "project": "'"$project_id"'",
+              "title": "Annotation sink",
+              "can_delete_objects": true,
+              "bucket": "label-studio-sink",
+              "aws_access_key_id": "minio",
+              "aws_secret_access_key": "minio123",
+              "s3_endpoint": "http://minio.minio:9000",
+              "region_name": "none"
+          }'
+      restartPolicy: Never

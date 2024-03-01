@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: traffic-sign-detection
+  labels:
+    modelmesh-enabled: "true"
+    opendatahub.io/dashboard: "true"
+  annotations:
+    openshift.io/display-name: "Traffic sign detection"

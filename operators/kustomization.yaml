@@ -1,0 +1,3 @@
+resources:
+  - openshift-ai.yaml
+  - openshift-pipelines.yaml

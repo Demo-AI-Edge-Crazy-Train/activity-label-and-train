@@ -1,0 +1,58 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-buckets
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      serviceAccount: minio-manage
+      serviceAccountName: minio-manage
+      initContainers:
+      - name: wait-for-minio
+        image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash"]
+        args:
+        - -ec
+        - |-
+          echo -n "Waiting for minio pod in minio namespace"
+          while [ -z "$(oc get pod -n minio -l app=minio -o name 2>/dev/null)" ]; do
+              echo -n '.'
+              sleep 1
+          done
+          echo "Minio pod is running in minio namespace"
+      containers:
+      - name: add-model
+        image: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/s2i-generic-data-science-notebook:1.2
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash"]
+        args:
+        - -ec
+        - |-
+          cat << 'EOF' | python3
+          import boto3, os
+          BUCKETS = ["mlops-pipelines", "label-studio", "label-studio-sink", "label-studio-source", "model-zoo"]
+          s3 = boto3.client("s3",
+                            endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
+                            aws_access_key_id=os.getenv("MINIO_ROOT_USER"),
+                            aws_secret_access_key=os.getenv("MINIO_ROOT_PASSWORD"))
+
+          # Create the models bucket
+          for bucket in BUCKETS:
+            if bucket not in [bu["Name"] for bu in s3.list_buckets()["Buckets"]]:
+                s3.create_bucket(Bucket=bucket)
+
+          EOF
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: AWS_S3_ENDPOINT
+          value: http://minio.$(NAMESPACE):9000
+        envFrom:
+        - secretRef:
+            name: minio-root-user
+      restartPolicy: Never

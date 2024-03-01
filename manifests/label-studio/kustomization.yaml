@@ -1,0 +1,11 @@
+namespace: label-studio
+resources:
+- namespace.yaml
+- route.yaml
+- serviceaccount.yaml
+- setup-project.yaml
+helmCharts:
+- name: label-studio
+  releaseName: label-studio
+  repo: https://charts.heartex.com/
+  valuesFile: values.yaml

@@ -1,0 +1,37 @@
+global:
+  image:
+    tag: 1.10.1
+  pgConfig:
+    host: label-studio-postgresql-hl
+  extraEnvironmentVars:
+    LABEL_STUDIO_DISABLE_SIGNUP_WITHOUT_LINK: true
+    LABEL_STUDIO_USERNAME: summit@redhat.com
+    LABEL_STUDIO_PASSWORD: redhat
+    LABEL_STUDIO_USER_TOKEN: redhat
+  persistence:
+    config:
+      s3:
+        accessKey: "minio"
+        secretKey: "minio123"
+        region: "none"
+        bucket: "label-studio"
+        folder: "persistence"
+        endpointUrl: "http://minio.minio:9000"
+
+app:
+  podLabels:
+    app: label-studio
+  podSecurityContext:
+    enabled: false
+  containerSecurityContext:
+    enabled: false
+  rbac:
+    create: true
+
+postgresql:
+  enabled: true
+  primary:
+    podSecurityContext:
+      enabled: false
+    containerSecurityContext:
+      enabled: false

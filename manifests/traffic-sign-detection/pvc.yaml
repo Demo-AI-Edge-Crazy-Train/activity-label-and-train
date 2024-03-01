@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    openshift.io/description: "Contains the python code to fine-tune a base model"
+    openshift.io/display-name: Model scripts and pipelines
+  labels:
+    opendatahub.io/dashboard: "true"
+  name: notebook-fs
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem

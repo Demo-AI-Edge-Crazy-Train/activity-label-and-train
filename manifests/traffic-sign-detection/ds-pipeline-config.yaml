@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ds-pipeline-config
+type: Opaque
+stringData:
+  odh_dsp.json: |
+    {
+      "display_name":"Data Science Pipeline",
+      "metadata":{
+        "tags":[],
+        "display_name":"Data Science Pipeline",
+        "engine":"Tekton",
+        "auth_type":"NO_AUTHENTICATION",
+        "api_endpoint":"http://ds-pipeline-pipelines-definition:8888",
+        "cos_auth_type":"USER_CREDENTIALS",
+        "cos_endpoint":"http://minio.minio:9000",
+        "cos_bucket":"mlops-pipelines",
+        "cos_username":"minio",
+        "cos_password":"minio123"
+      },
+      "schema_name":"kfp"
+    }

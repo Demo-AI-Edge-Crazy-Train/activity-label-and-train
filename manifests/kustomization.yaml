@@ -1,0 +1,4 @@
+resources:
+- minio
+- traffic-sign-detection
+- label-studio

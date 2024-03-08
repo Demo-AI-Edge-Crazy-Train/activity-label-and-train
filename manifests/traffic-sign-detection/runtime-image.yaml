@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: runtime-image
+data:
+  custom-runtime.json: |
+    {
+      "display_name": "Custom runtime w/ ultralytics and opencv",
+      "metadata": {
+          "tags": ["ultralytics-opencv"],
+          "display_name": "Custom runtime w/ ultralytics and opencv",
+          "image_name": "quay.io/demo-ai-edge-crazy-train/activity-pipeline-runtime:v1",
+          "pull_policy": "IfNotPresent"
+      },
+      "schema_name": "runtime-image"
+    }

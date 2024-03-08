@@ -80,6 +80,8 @@ spec:
           name: elyra-dsp-details
         - mountPath: /dev/shm
           name: shm
+        - mountPath: /opt/app-root/share/jupyter/metadata/runtime-images
+          name: runtime-image
         workingDir: /opt/app-root/src
       - args:
         - --provider=openshift
@@ -157,6 +159,10 @@ spec:
         secret:
           defaultMode: 420
           secretName: ds-pipeline-config
+      - name: runtime-image
+        configMap:
+          defaultMode: 420
+          name: runtime-image
       - emptyDir:
           medium: Memory
         name: shm

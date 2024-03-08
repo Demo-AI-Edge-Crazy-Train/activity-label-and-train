@@ -1,0 +1,3 @@
+FROM quay.io/modh/runtime-images@sha256:0c37b08dc6aaa8d2a43ef85cb0f28777e336a337cb51b471da38bb41f57066a5
+
+RUN pip install opencv-python-headless ultralytics boto3

@@ -12,5 +12,6 @@ resources:
 - pipeline-server.yaml
 - pvc.yaml
 - ds-pipeline-config.yaml
+- runtime-image.yaml
 - notebook.yaml
 - clone-repo.yaml

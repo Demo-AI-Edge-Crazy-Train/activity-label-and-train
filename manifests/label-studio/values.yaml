@@ -1,6 +1,6 @@
 global:
   image:
-    tag: 1.10.1
+    tag: latest
   pgConfig:
     host: label-studio-postgresql-hl
   extraEnvironmentVars:
@@ -9,15 +9,8 @@ global:
     LABEL_STUDIO_PASSWORD: redhat
     LABEL_STUDIO_USER_TOKEN: redhat
   persistence:
-    config:
-      s3:
-        accessKey: "minio"
-        secretKey: "minio123"
-        region: "none"
-        bucket: "label-studio"
-        folder: "persistence"
-        endpointUrl: "http://minio.minio:9000"
-
+    enabled: true
+    type: volume
 app:
   podLabels:
     app: label-studio

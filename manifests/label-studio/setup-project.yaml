@@ -49,20 +49,20 @@ spec:
               "label_config": "<View><View style=\"display:flex;align-items:start;gap:8px;flex-direction:row-reverse\"><Image name=\"image\" value=\"$image\" zoomControl=\"false\"/><RectangleLabels name=\"label\" toName=\"image\" showInline=\"false\"><Label value=\"SpeedLimit_30\" background=\"#FFA39E\"/><Label value=\"SpeedLimit_50\" background=\"#D4380D\"/><Label value=\"TrafficSignalsAhead\" background=\"#FFC069\"/><Label value=\"PedestiranCrossingAhead\" background=\"#AD8B00\"/><Label value=\"BewareChildren\" background=\"#D3F261\"/></RectangleLabels></View></View>"
           }' | jq .id)
           echo "Project created with id ${project_id}"
-          curl --location 'http://label-studio-ls-app/api/storages/s3/' \
-          --header 'Content-Type: application/json' \
-          --header 'Authorization: Token redhat' \
-          --data '{
-              "project": "'"$project_id"'",
-              "title": "Picture source",
-              "bucket": "label-studio-source",
-              "use_blob_urls": true,
-              "presign": false,
-              "aws_access_key_id": "minio",
-              "aws_secret_access_key": "minio123",
-              "s3_endpoint": "http://minio.minio:9000",
-              "region_name": "none"
-          }'
+          # curl --location 'http://label-studio-ls-app/api/storages/s3/' \
+          # --header 'Content-Type: application/json' \
+          # --header 'Authorization: Token redhat' \
+          # --data '{
+          #     "project": "'"$project_id"'",
+          #     "title": "Picture source",
+          #     "bucket": "label-studio-source",
+          #     "use_blob_urls": true,
+          #     "presign": false,
+          #     "aws_access_key_id": "minio",
+          #     "aws_secret_access_key": "minio123",
+          #     "s3_endpoint": "http://minio.minio:9000",
+          #     "region_name": "none"
+          # }'
           curl --location 'http://label-studio-ls-app/api/storages/export/s3' \
           --header 'Content-Type: application/json' \
           --header 'Authorization: Token redhat' \

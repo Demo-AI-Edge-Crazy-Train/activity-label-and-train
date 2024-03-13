@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   annotations:
-    openshift.io/description: "Contains the python code to fine-tune a base model"
+    openshift.io/description: "Contains the python code to transfer learning from base model"
     openshift.io/display-name: Model scripts and pipelines
   labels:
     opendatahub.io/dashboard: "true"

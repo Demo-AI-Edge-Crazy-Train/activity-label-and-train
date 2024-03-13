@@ -32,9 +32,9 @@ spec:
                   sleep 1
               done;
           }
-          wait_for_exists "app=fine-tune" "traffic-sign-detection"
-          oc -n traffic-sign-detection wait --timeout=-1s --for=condition=Ready=true po -l app=fine-tune
-          pod=$(oc -n traffic-sign-detection get po -oname -l app=fine-tune -oname)
+          wait_for_exists "app=transfer-learning" "traffic-sign-detection"
+          oc -n traffic-sign-detection wait --timeout=-1s --for=condition=Ready=true po -l app=transfer-learning
+          pod=$(oc -n traffic-sign-detection get po -oname -l app=transfer-learning -oname)
           oc exec -it ${pod} -- rm -rf activity-notebooks 2>/dev/null
           oc exec -it ${pod} -- git clone https://github.com/Demo-AI-Edge-Crazy-Train/activity-notebooks.git
       restartPolicy: Never

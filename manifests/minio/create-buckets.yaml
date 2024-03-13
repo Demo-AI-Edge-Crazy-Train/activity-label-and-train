@@ -24,16 +24,17 @@ spec:
           done
           echo "Minio pod is running in minio namespace"
       containers:
-      - name: add-model
+      - name: create-and-add-model
         image: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/s2i-generic-data-science-notebook:1.2
         imagePullPolicy: IfNotPresent
         command: ["/bin/bash"]
         args:
         - -ec
         - |-
+          git clone https://github.com/Demo-AI-Edge-Crazy-Train/train-models.git
           cat << 'EOF' | python3
           import boto3, os
-          BUCKETS = ["mlops-pipelines", "label-studio", "label-studio-sink", "label-studio-source", "model-zoo"]
+          BUCKETS = ["mlops-pipelines", "label-studio-sink", "model-zoo"]
           s3 = boto3.client("s3",
                             endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
                             aws_access_key_id=os.getenv("MINIO_ROOT_USER"),
@@ -43,7 +44,7 @@ spec:
           for bucket in BUCKETS:
             if bucket not in [bu["Name"] for bu in s3.list_buckets()["Buckets"]]:
                 s3.create_bucket(Bucket=bucket)
-
+          s3.upload_file("train-models/default/weights/best.pt", "model-zoo", "models/default/best.pt")
           EOF
         env:
         - name: NAMESPACE

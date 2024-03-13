@@ -8,10 +8,10 @@ metadata:
     openshift.io/description: "Exploration, fine tuning and pipeline creation"
     openshift.io/display-name: Integrated development environment
   labels:
-    app: fine-tune
+    app: transfer-learning
     opendatahub.io/dashboard: "true"
     opendatahub.io/odh-managed: "true"
-  name: fine-tune
+  name: transfer-learning
 spec:
   template:
     spec:
@@ -32,7 +32,7 @@ spec:
             --ServerApp.port=8888
             --ServerApp.token=''
             --ServerApp.password=''
-            --ServerApp.base_url=/notebook/traffic-sign-detection/fine-tune
+            --ServerApp.base_url=/notebook/traffic-sign-detection/transfer-learning
             --ServerApp.quit_button=False
         - name: JUPYTER_IMAGE
           value: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/s2i-generic-data-science-notebook:2023.2
@@ -44,14 +44,14 @@ spec:
         livenessProbe:
           failureThreshold: 3
           httpGet:
-            path: /notebook/traffic-sign-detection/fine-tune/api
+            path: /notebook/traffic-sign-detection/transfer-learning/api
             port: notebook-port
             scheme: HTTP
           initialDelaySeconds: 10
           periodSeconds: 5
           successThreshold: 1
           timeoutSeconds: 1
-        name: fine-tune
+        name: transfer-learning
         ports:
         - containerPort: 8888
           name: notebook-port
@@ -59,7 +59,7 @@ spec:
         readinessProbe:
           failureThreshold: 3
           httpGet:
-            path: /notebook/traffic-sign-detection/fine-tune/api
+            path: /notebook/traffic-sign-detection/transfer-learning/api
             port: notebook-port
             scheme: HTTP
           initialDelaySeconds: 10
@@ -87,7 +87,7 @@ spec:
         - --provider=openshift
         - --https-address=:8443
         - --http-address=
-        - --openshift-service-account=fine-tune
+        - --openshift-service-account=transfer-learning
         - --cookie-secret-file=/etc/oauth/config/cookie_secret
         - --cookie-expire=24h0m0s
         - --tls-cert=/etc/tls/private/tls.crt
@@ -96,7 +96,7 @@ spec:
         - --upstream-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         - --email-domain=*
         - --skip-provider-button
-        - --openshift-sar={"verb":"get","resource":"notebooks","resourceAPIGroup":"kubeflow.org","resourceName":"fine-tune","namespace":"$(NAMESPACE)"}
+        - --openshift-sar={"verb":"get","resource":"notebooks","resourceAPIGroup":"kubeflow.org","resourceName":"transfer-learning","namespace":"$(NAMESPACE)"}
         env:
         - name: NAMESPACE
           valueFrom:
@@ -142,7 +142,7 @@ spec:
         - mountPath: /etc/tls/private
           name: tls-certificates
       enableServiceLinks: false
-      serviceAccountName: fine-tune
+      serviceAccountName: transfer-learning
       volumes:
       - name: notebook-fs
         persistentVolumeClaim:
@@ -150,11 +150,11 @@ spec:
       - name: oauth-config
         secret:
           defaultMode: 420
-          secretName: fine-tune-oauth-config
+          secretName: transfer-learning-oauth-config
       - name: tls-certificates
         secret:
           defaultMode: 420
-          secretName: fine-tune-tls
+          secretName: transfer-learning-tls
       - name: elyra-dsp-details
         secret:
           defaultMode: 420

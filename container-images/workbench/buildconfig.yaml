@@ -1,0 +1,32 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: workbench-custom-data-science
+  namespace: redhat-ods-applications
+spec:
+  output:
+    to:
+      kind: "DockerImage"
+      name: "quay.io/demo-ai-edge-crazy-train/workbench:minimal"
+  source:
+    dockerfile: |-
+      FROM scratch
+      USER 0
+      RUN rm -rf /opt/app-root/share/jupyter/metadata/runtime-images/ && \
+          pip install opencv-python-headless
+      COPY --chmod=666 ./runtime-images /opt/app-root/share/jupyter/metadata/runtime-images
+      WORKDIR /opt/app-root/src
+      USER 1001
+      ENTRYPOINT ["start-notebook.sh"]
+    configMaps:
+      - configMap:
+          name: runtime-images
+        destinationDir: "runtime-images"
+  strategy:
+    dockerStrategy:
+      from:
+        kind: ImageStreamTag
+        name: s2i-generic-data-science-notebook:2024.1
+        namespace: redhat-ods-applications
+      pullSecret: 
+        name: quay-pull-secret

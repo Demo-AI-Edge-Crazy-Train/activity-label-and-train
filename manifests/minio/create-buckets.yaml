@@ -34,7 +34,7 @@ spec:
           git clone https://github.com/Demo-AI-Edge-Crazy-Train/train-models.git
           cat << 'EOF' | python3
           import boto3, os
-          BUCKETS = ["mlops-pipelines", "label-studio-sink", "model-zoo"]
+          BUCKETS = ["mlops-pipelines", "label-studio-sink", "model-zoo", "data"]
           s3 = boto3.client("s3",
                             endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
                             aws_access_key_id=os.getenv("MINIO_ROOT_USER"),

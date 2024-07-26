@@ -66,7 +66,7 @@ spec:
           DOMAIN_NAME=$(oc get ingresses.config.openshift.io cluster -ojsonpath='{.spec.domain}')
           cd tmp
           curl https://raw.githubusercontent.com/Demo-AI-Edge-Crazy-Train/activity-label-and-train/main/annotations/annotations.json -o annotations.json
-          sed -i 's/DOMAIN_NAME/$DOMAIN_NAME/g' annotations.json
+          sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" annotations.json
           curl -v -H 'Authorization: Token redhat' \
           -X POST 'http://label-studio-ls-app.label-studio/api/projects/1/import' \
           -F file=@./annotations.json

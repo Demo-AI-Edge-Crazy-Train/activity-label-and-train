@@ -70,6 +70,7 @@ spec:
           curl -v -H 'Authorization: Token redhat' \
           -X POST 'http://label-studio-ls-app.label-studio/api/projects/1/import' \
           -F file=@./annotations.json
+          curl -X POST --header 'Content-Type: application/json' --header 'Authorization: Token redhat' http://label-studio-ls-app.label-studio/api/storages/export/s3/1/sync
       - name: push-models
         image: quay.io/demo-ai-edge-crazy-train/minio-helper:latest
         command: ["/bin/bash"]

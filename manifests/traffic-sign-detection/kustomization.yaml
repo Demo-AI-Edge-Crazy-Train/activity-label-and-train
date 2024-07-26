@@ -7,11 +7,5 @@ namespace: traffic-sign-detection
 resources:
 - namespace.yaml
 - serviceaccount.yaml
-- networkpolicy.yaml
-- create-data-connection.yaml
-- pipeline-server.yaml
 - pvc.yaml
-- ds-pipeline-config.yaml
 - runtime-image.yaml
-- notebook.yaml
-- clone-repo.yaml

@@ -24,35 +24,67 @@ spec:
           done
           echo "Minio pod is running in minio namespace"
       containers:
-      - name: create-and-add-model
-        image: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/s2i-generic-data-science-notebook:1.2
-        imagePullPolicy: IfNotPresent
+      - name: add-buckets-and-policies
+        image: quay.io/demo-ai-edge-crazy-train/minio-helper:latest
         command: ["/bin/bash"]
         args:
         - -ec
         - |-
+          mc alias set minio http://minio.minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}
+          mc mb --ignore-existing minio/label-studio-sink
+          mc anonymous set download minio/label-studio-sink
+          mc mb --ignore-existing minio/model-registry
+          mc anonymous set download minio/model-registry
+          mc mb --ignore-existing minio/data
+          mc anonymous set download minio/data
+        envFrom:
+        - secretRef:
+            name: minio-root-user
+      - name: push-data
+        image: quay.io/demo-ai-edge-crazy-train/minio-helper:latest
+        command: ["/bin/bash"]
+        args:
+        - -c
+        - |-
+          # Push dataset to minio
+          mc alias set minio http://minio.minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}
+          mc ls minio/data
+          while [ $? != "0" ]; do echo "Wait for data bucket"; sleep 1; mc ls minio/data; done
+          cd /tmp
+          git clone https://github.com/Demo-AI-Edge-Crazy-Train/activity-label-and-train.git
+          mc cp ./activity-label-and-train/datasets/traffic-sign-lego/* minio/data/traffic-sign-lego/
+        envFrom:
+        - secretRef:
+            name: minio-root-user
+      - name: push-annotations
+        image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+        command: ["/bin/bash"]
+        args:
+        - -ec
+        - |-
+          # Push annotations to label studio
+          DOMAIN_NAME=$(oc get ingresses.config.openshift.io cluster -ojsonpath='{.spec.domain}')
+          cd tmp
+          curl https://raw.githubusercontent.com/Demo-AI-Edge-Crazy-Train/activity-label-and-train/main/annotations/annotations.json -o annotations.json
+          sed -i 's/DOMAIN_NAME/$DOMAIN_NAME/g' annotations.json
+          curl -v -H 'Authorization: Token redhat' \
+          -X POST 'http://label-studio-ls-app.label-studio/api/projects/1/import' \
+          -F file=@./annotations.json
+      - name: push-models
+        image: quay.io/demo-ai-edge-crazy-train/minio-helper:latest
+        command: ["/bin/bash"]
+        args:
+        - -c
+        - |-
+          mc alias set minio http://minio.minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}
+          mc ls minio/model-registry
+          while [ $? != "0" ]; do echo "Wait for model-registry bucket"; sleep 1; mc ls minio/model-registry; done
+          cd tmp
           git clone https://github.com/Demo-AI-Edge-Crazy-Train/train-models.git
-          cat << 'EOF' | python3
-          import boto3, os
-          BUCKETS = ["mlops-pipelines", "label-studio-sink", "model-zoo", "data"]
-          s3 = boto3.client("s3",
-                            endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
-                            aws_access_key_id=os.getenv("MINIO_ROOT_USER"),
-                            aws_secret_access_key=os.getenv("MINIO_ROOT_PASSWORD"))
-
-          # Create the models bucket
-          for bucket in BUCKETS:
-            if bucket not in [bu["Name"] for bu in s3.list_buckets()["Buckets"]]:
-                s3.create_bucket(Bucket=bucket)
-          s3.upload_file("train-models/default/weights/best.pt", "model-zoo", "models/default/best.pt")
-          EOF
-        env:
-        - name: NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: AWS_S3_ENDPOINT
-          value: http://minio.$(NAMESPACE):9000
+          mc cp train-models/default/model.onnx minio/model-registry/default/model.onnx
+          mc cp train-models/default/weights/best.pt minio/model-registry/default/best.pt
+          mc cp train-models/lego/model.onnx minio/model-registry/lego/model.onnx
+          mc cp train-models/lego/weights/best.pt minio/model-registry/lego/best.pt
         envFrom:
         - secretRef:
             name: minio-root-user

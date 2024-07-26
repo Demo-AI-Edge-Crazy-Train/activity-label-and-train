@@ -37,6 +37,8 @@ spec:
           mc anonymous set download minio/model-registry
           mc mb --ignore-existing minio/data
           mc anonymous set download minio/data
+          mc mb --ignore-existing minio/mlops-pipelines
+          mc anonymous set download minio/mlops-pipelines
         envFrom:
         - secretRef:
             name: minio-root-user

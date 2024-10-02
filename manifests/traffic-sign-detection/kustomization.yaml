@@ -7,5 +7,5 @@ namespace: traffic-sign-detection
 resources:
 - namespace.yaml
 - serviceaccount.yaml
-- pvc.yaml
-- runtime-image.yaml
+- data-connections.yaml
+- models.yaml

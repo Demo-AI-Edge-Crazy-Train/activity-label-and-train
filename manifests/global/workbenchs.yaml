@@ -1,0 +1,55 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
+    opendatahub.io/notebook-image-desc: "Ultralytics"
+    opendatahub.io/notebook-image-name: "Ultralytics"
+    opendatahub.io/notebook-image-origin: Admin
+    opendatahub.io/notebook-image-url:  quay.io/demo-ai-edge-crazy-train/workbench:ultralytics
+  labels:
+    opendatahub.io/dashboard: "true"
+    opendatahub.io/notebook-image: "true"
+  name: ultralytics
+spec:
+  lookupPolicy:
+    local: true
+  tags:
+  - annotations:
+      opendatahub.io/notebook-python-dependencies: '[ultralytics]'
+      opendatahub.io/notebook-software: '[]'
+      openshift.io/imported-from: quay.io/demo-ai-edge-crazy-train/workbench:ultralytics
+    from:
+      kind: DockerImage
+      name: quay.io/demo-ai-edge-crazy-train/workbench:ultralytics
+    importPolicy: {}
+    name: ultralytics
+    referencePolicy:
+      type: Source
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
+    opendatahub.io/notebook-image-desc: "Minimal"
+    opendatahub.io/notebook-image-name: "Minimal"
+    opendatahub.io/notebook-image-origin: Admin
+    opendatahub.io/notebook-image-url:  quay.io/demo-ai-edge-crazy-train/workbench:minimal
+  labels:
+    opendatahub.io/dashboard: "true"
+    opendatahub.io/notebook-image: "true"
+  name: minimal
+spec:
+  lookupPolicy:
+    local: true
+  tags:
+  - annotations:
+      opendatahub.io/notebook-python-dependencies: '[]'
+      opendatahub.io/notebook-software: '[]'
+      openshift.io/imported-from: quay.io/demo-ai-edge-crazy-train/workbench:minimal
+    from:
+      kind: DockerImage
+      name: quay.io/demo-ai-edge-crazy-train/workbench:minimal
+    importPolicy: {}
+    name: minimal
+    referencePolicy:
+      type: Source

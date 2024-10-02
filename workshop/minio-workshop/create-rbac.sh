@@ -1,4 +1,4 @@
-mc alias set riviera https://minio-s3-minio.apps.riviera-dev-2024.sandbox2830.opentlc.com admin crazytrain123!
+mc alias set riviera https://minio-s3-minio.DOMAIN_NAME admin crazytrain123!
 for i in {1..40};
 do
     mc admin user add riviera user$i minio123;

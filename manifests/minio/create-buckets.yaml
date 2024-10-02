@@ -10,7 +10,7 @@ spec:
       serviceAccount: minio-manage
       serviceAccountName: minio-manage
       initContainers:
-      - name: wait-for-minio
+      - name: wait-for-components
         image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
         imagePullPolicy: IfNotPresent
         command: ["/bin/bash"]
@@ -23,6 +23,9 @@ spec:
               sleep 1
           done
           echo "Minio pod is running in minio namespace"
+          echo -n "Waiting for label studio pod in label-studio namespace"
+          oc wait -n label-studio --timeout=-1s --for=condition=Ready pod -l app=label-studio
+          echo -n "Label studio pod is ready"
       containers:
       - name: add-buckets-and-policies
         image: quay.io/demo-ai-edge-crazy-train/minio-helper:latest
@@ -55,6 +58,7 @@ spec:
           cd /tmp
           git clone https://github.com/Demo-AI-Edge-Crazy-Train/activity-label-and-train.git
           mc cp ./activity-label-and-train/datasets/traffic-sign-lego/* minio/data/traffic-sign-lego/
+          mc cp ./activity-label-and-train/datasets/validation-dataset.tar.gz minio/data/validation-dataset.tar.gz
         envFrom:
         - secretRef:
             name: minio-root-user
